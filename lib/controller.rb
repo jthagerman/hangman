@@ -26,12 +26,36 @@ class  Controller
     end
   
     def start_game()
-        puts "Type save anytime to save game"
+        puts "Type save anytime to save game, quit to quit"
         run = Game.new()
         setup_game()
     end
     def load_game()
-        puts "more hit"
+
+
+        if (!File.directory?('saves'))
+            puts "no saves yet\n starting new game"
+            start_game()
+        else
+            saves = Dir.open("../hangman/saves")
+
+            puts "\n\nHere are the save files please select one:"
+            puts "=========================================="
+            count = 1
+            saves.each do |file|
+                if(file.include? ".json" )
+                file = file.delete_suffix('.json')
+                puts "\t#{count}) #{file}"
+                count += 1
+                end
+            end
+
+            
+
+
+
+        end
+
     end
     def quit_game()
         puts "Thank You For Playing! <3"

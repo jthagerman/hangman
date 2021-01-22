@@ -1,5 +1,9 @@
 
 #Game.rb Class countains all the logic for setting up a game and taking turns
+
+require 'json'
+
+
 class Game
         
     def initialize()
@@ -9,16 +13,28 @@ class Game
         @tries = 10
 
         puts "\nWelcome to Hangman your word is #{@word.length} letters long"
-
-      #  puts @word
+        puts @word
         take_turn
-
-
-
     end
+
+    def to_json
+        JSON.dump ({
+          :word => @word,
+          :guess => @guesses,
+          :misses => @misses,
+          :tries => @tries
+        })
+    end
+
+    def self.from_json(string)
+        data = JSON.load string
+        self.new(data['word'], data['guesses'], data['misses'], data['tries'])
+    end
+    
 
     def take_turn()
         printBoard(@word,@guesses,@tries)
+
 
         while((@tries > 0) && (!check_victory(@guesses,@word)))
             turn = get_turn_input()      
@@ -48,13 +64,19 @@ class Game
         turn = ""
 
         while((turn.match(/^[a-z]$/) == nil))
-            puts "\n\nPlease guess a letter"
+            puts "\n\nPlease guess a letter, save to quit"
             turn = gets.chomp.downcase
             if(turn == "save")
                 saveGame()
-            end
-            
-            if((@guesses.include? turn) || (@misses.include? turn))
+                exit(0)
+            elsif(turn == "quit")
+
+                puts "Thanks for Playing"
+                exit(0)
+            elsif(turn == @word)
+                puts("Congrats! You Win!")   
+                exit(0)      
+            elsif((@guesses.include? turn) || (@misses.include? turn))
                 puts "You already guessed that letter"
                 turn = "0"
             end
@@ -74,17 +96,44 @@ class Game
             end
         end
        return  wordArray[rand(wordArray.length)]
-
     end
 
     def saveGame()
-        puts "this functionality is not yet available"
+        directory = "saves"
+
+        if (!File.directory?(directory))
+            Dir.mkdir(directory)
+        end
+
+        puts "Please enter a save file name"
+       
+        filename = String.new
+        while((filename.match(/^[a-zA-Z0-9]+$/) == nil) )
+            
+            filename = gets.chomp.downcase
+            if(File.exist?("../hangman/saves/#{filename}.json"))
+                puts "That filename already exists please choose another"
+                filename = "-----"
+            end
+
+            if(filename.match(/^[a-zA-Z0-9]+$/) == nil)
+                puts "Invalid Input\nPlease Enter a valid Filename"
+            end
+
+        end
+
+        File.write("../hangman/saves/#{filename}.json", self.to_json)
+        puts("game saved, thank you for playing")
     end
+
+ 
+        
+
 
     def printBoard(word,guesses,tries)
         puts( "==" * @word.length)
-
         output = ""
+       
         word.each_char do |letter|
             if(guesses.include?(letter))
                 output += letter
@@ -93,13 +142,10 @@ class Game
             end
             output += " "
         end
-        
+      
         miss_string = ""
-
         @misses.each  {|letter| miss_string += letter + " "}
-
-        puts "\n"
-        puts "#{output}\n\n"
+        puts "\n#{output}\n\n"
         puts( "==" * @word.length)
         puts "Misses: #{miss_string}"
         if !check_victory(@guesses,@word)
