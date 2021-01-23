@@ -30,33 +30,37 @@ class  Controller
         run = Game.new()
         setup_game()
     end
+
     def load_game()
-
-
         if (!File.directory?('saves'))
             puts "no saves yet\n starting new game"
-            start_game()
+            setup_game()
         else
             saves = Dir.open("../hangman/saves")
 
             puts "\n\nHere are the save files please select one:"
             puts "=========================================="
             count = 1
+            filelist = []
             saves.each do |file|
                 if(file.include? ".json" )
-                file = file.delete_suffix('.json')
-                puts "\t#{count}) #{file}"
-                count += 1
+                    file = file.delete_suffix('.json')
+                    filelist.push(file)
+                    puts "\t#{count}) #{file}"
+                    count += 1
                 end
             end
 
-            
-
-
-
+            input = String.new()
+            while((!filelist.include?(input)))
+                puts "enter filename"
+                input = gets.chomp.downcase
+            end
+            file = File.open("../hangman/saves/#{input}.json")
+            game = Game.from_json(file)
         end
-
     end
+
     def quit_game()
         puts "Thank You For Playing! <3"
         exit(0)

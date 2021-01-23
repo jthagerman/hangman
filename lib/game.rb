@@ -3,17 +3,24 @@
 
 require 'json'
 
-
 class Game
         
-    def initialize()
-        @word = pick_a_word()
-        @guesses = []
-        @misses = []
-        @tries = 10
-
-        puts "\nWelcome to Hangman your word is #{@word.length} letters long"
-        puts @word
+    def initialize(word="",guesses="",misses="",tries="")
+        
+        if(word == "")
+            @word = pick_a_word()
+            @guesses = []
+            @misses = []
+            @tries = 10
+            puts "\nWelcome to Hangman your word is #{@word.length} letters long"
+        else
+            puts "\nWelcome back:"
+            @word = word
+            (guesses != nil) ? @guesses = guesses : @guesses = []
+            (misses != nil) ?  @misses = misses : @misses = []
+            @tries = tries
+            puts "you have #{tries} tries left"
+        end
         take_turn
     end
 
@@ -28,13 +35,12 @@ class Game
 
     def self.from_json(string)
         data = JSON.load string
-        self.new(data['word'], data['guesses'], data['misses'], data['tries'])
+        self.new(data['word'], data['guess'], data['misses'], data['tries'])
     end
     
-
     def take_turn()
-        printBoard(@word,@guesses,@tries)
 
+        printBoard(@word,@guesses,@tries)
 
         while((@tries > 0) && (!check_victory(@guesses,@word)))
             turn = get_turn_input()      
@@ -44,7 +50,6 @@ class Game
             end
             printBoard(@word,@guesses,@tries)
         end
-
         check_victory(@guesses,@word) ? puts("Congrats! You Win!") : puts("\nGAME OVER the word was #{@word}")
     end
 
@@ -126,15 +131,12 @@ class Game
         puts("game saved, thank you for playing")
     end
 
- 
-        
-
-
     def printBoard(word,guesses,tries)
         puts( "==" * @word.length)
         output = ""
        
         word.each_char do |letter|
+
             if(guesses.include?(letter))
                 output += letter
             else
