@@ -1,4 +1,3 @@
-
 #Game.rb Class countains all the logic for setting up a game and taking turns
 
 require 'json'
@@ -39,7 +38,6 @@ class Game
     end
     
     def take_turn()
-
         printBoard(@word,@guesses,@tries)
 
         while((@tries > 0) && (!check_victory(@guesses,@word)))

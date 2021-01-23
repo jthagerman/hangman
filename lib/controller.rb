@@ -33,7 +33,7 @@ class  Controller
 
     def load_game()
         if (!File.directory?('saves'))
-            puts "no saves yet\n starting new game"
+            puts "no saves yet\n"
             setup_game()
         else
             saves = Dir.open("../hangman/saves")
