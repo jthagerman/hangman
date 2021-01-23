@@ -3,5 +3,5 @@
 `written by John Hagerman`
 
 # Running
-`run the game.rb file`
+`ruby lib/hangman.rb `
 
